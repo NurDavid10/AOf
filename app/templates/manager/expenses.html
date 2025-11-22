@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Expenses - Academic Tomorrow{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Expenses</h1>
+        <p class="mt-2 text-gray-600">View and manage all expenses</p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mb-6 flex justify-between items-center">
+        <a href="/manager/financial-report" class="text-blue-600 hover:text-blue-800">
+            &larr; Back to Financial Report
+        </a>
+        <a href="/manager/expenses/create" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition">
+            + Add Expense
+        </a>
+    </div>
+
+    <!-- Expenses Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        {% if expenses %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created By</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for expense in expenses %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ expense.expense_date.strftime('%Y-%m-%d') }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                {% if expense.category.value == 'salary' %}bg-blue-100 text-blue-800
+                                {% elif expense.category.value == 'maintenance' %}bg-orange-100 text-orange-800
+                                {% elif expense.category.value == 'utilities' %}bg-yellow-100 text-yellow-800
+                                {% elif expense.category.value == 'supplies' %}bg-green-100 text-green-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ expense.category.value.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                            ${{ "%.2f"|format(expense.amount) }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {{ expense.description or '-' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ expense.created_by_manager.user.full_name or expense.created_by_manager.user.username }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No expenses recorded</h3>
+            <p class="mt-1 text-sm text-gray-500">Get started by adding your first expense.</p>
+            <div class="mt-6">
+                <a href="/manager/expenses/create" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Add Expense
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

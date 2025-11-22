@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Queue Position - Academic Tomorrow{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h2 class="text-3xl font-bold text-gray-900">Waiting List Details</h2>
+        <p class="mt-2 text-sm text-gray-600">{{ student.full_name or student.username }} - {{ course.course_name }}</p>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="/parent/children" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition">
+            Back to Children
+        </a>
+    </div>
+
+    <!-- Position Info -->
+    {% if position %}
+    <div class="mb-6 p-8 bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-lg shadow-lg">
+        <div class="text-center">
+            <p class="text-lg mb-2">Your child's position in the queue</p>
+            <p class="text-6xl font-bold mb-2">#{{ position }}</p>
+            <p class="text-sm opacity-90">out of {{ queue_info.waiting_count }} students waiting</p>
+        </div>
+    </div>
+    {% else %}
+    <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md">
+        Your child is not currently in the waiting list for this course.
+    </div>
+    {% endif %}
+
+    <!-- Course Info -->
+    <div class="mb-6 bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Course Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <p class="text-sm text-gray-600">Course Name</p>
+                <p class="text-lg font-semibold text-gray-900">{{ course.course_name }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Course Code</p>
+                <p class="text-lg font-semibold text-gray-900">{{ course.course_code }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Teacher</p>
+                <p class="text-lg font-semibold text-gray-900">{{ course.teacher_name }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Capacity Info -->
+    <div class="mb-6 bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Capacity Status</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-600">Total Capacity</p>
+                <p class="text-3xl font-bold text-gray-900">{{ course.capacity }}</p>
+            </div>
+            <div class="text-center p-4 bg-green-50 rounded-lg">
+                <p class="text-sm text-gray-600">Currently Enrolled</p>
+                <p class="text-3xl font-bold text-green-600">{{ course.enrolled_count }}</p>
+            </div>
+            <div class="text-center p-4 bg-blue-50 rounded-lg">
+                <p class="text-sm text-gray-600">Available Slots</p>
+                <p class="text-3xl font-bold text-blue-600">{{ course.available_slots }}</p>
+            </div>
+            <div class="text-center p-4 bg-orange-50 rounded-lg">
+                <p class="text-sm text-gray-600">In Waiting List</p>
+                <p class="text-3xl font-bold text-orange-600">{{ queue_info.waiting_count }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    {% if position %}
+    <div class="mb-6 bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Queue Progress</h3>
+        <div class="relative pt-1">
+            <div class="overflow-hidden h-6 mb-4 text-xs flex rounded bg-gray-200">
+                {% set progress = ((queue_info.waiting_count - position + 1) / queue_info.waiting_count * 100) | int %}
+                <div style="width:{{ progress }}%"
+                     class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-indigo-500 to-purple-600">
+                    <span class="font-semibold">{{ progress }}%</span>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600 text-center">
+                {{ queue_info.waiting_count - position }} students ahead of you
+            </p>
+        </div>
+    </div>
+
+    <!-- Info Message -->
+    <div class="p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
+        <p class="text-sm text-blue-700">
+            <strong>What happens next?</strong> When a slot becomes available (if a student drops the course), students in the waiting list will be automatically enrolled in order. You will be notified when your child is enrolled.
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

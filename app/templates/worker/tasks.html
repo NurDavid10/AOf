@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}My Tasks - Academic Tomorrow{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">My Tasks</h1>
+        <p class="mt-2 text-gray-600">View and manage your maintenance tasks</p>
+    </div>
+
+    <!-- Success/Error Messages -->
+    {% if success %}
+    <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+        {{ success }}
+    </div>
+    {% endif %}
+    {% if error %}
+    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Filter Buttons -->
+    <div class="mb-6 flex space-x-2">
+        <a href="/worker/tasks" class="px-4 py-2 {% if not current_status %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %} rounded-md hover:bg-blue-700 hover:text-white transition">
+            All Tasks
+        </a>
+        <a href="/worker/tasks?status=pending" class="px-4 py-2 {% if current_status == 'pending' %}bg-yellow-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %} rounded-md hover:bg-yellow-700 hover:text-white transition">
+            Pending
+        </a>
+        <a href="/worker/tasks?status=in_progress" class="px-4 py-2 {% if current_status == 'in_progress' %}bg-orange-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %} rounded-md hover:bg-orange-700 hover:text-white transition">
+            In Progress
+        </a>
+        <a href="/worker/tasks?status=completed" class="px-4 py-2 {% if current_status == 'completed' %}bg-green-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %} rounded-md hover:bg-green-700 hover:text-white transition">
+            Completed
+        </a>
+    </div>
+
+    <!-- Tasks Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        {% if tasks %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Started</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for task in tasks %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-medium text-gray-900">{{ task.title }}</div>
+                            {% if task.description %}
+                            <div class="text-sm text-gray-500 truncate max-w-xs">{{ task.description[:50] }}{% if task.description|length > 50 %}...{% endif %}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                {% if task.priority.value == 'urgent' %}bg-red-100 text-red-800
+                                {% elif task.priority.value == 'high' %}bg-orange-100 text-orange-800
+                                {% elif task.priority.value == 'medium' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-green-100 text-green-800{% endif %}">
+                                {{ task.priority.value.upper() }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                {% if task.status.value == 'completed' %}bg-green-100 text-green-800
+                                {% elif task.status.value == 'in_progress' %}bg-blue-100 text-blue-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ task.status.value.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ task.created_at.strftime('%Y-%m-%d %H:%M') }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {% if task.started_at %}
+                                {{ task.started_at.strftime('%Y-%m-%d %H:%M') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="/worker/tasks/{{ task.id }}" class="text-blue-600 hover:text-blue-900 mr-3">View Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No tasks found</h3>
+            <p class="mt-1 text-sm text-gray-500">No maintenance tasks match your current filter.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-6">
+        <a href="/worker/report-issue" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            Report New Issue
+        </a>
+    </div>
+</div>
+{% endblock %}

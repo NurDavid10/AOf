@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Parent Dashboard - Academic Tomorrow{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Parent Dashboard</h1>
+        <p class="mt-2 text-gray-600">Monitor your children's progress</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">My Children</h3>
+            <p class="text-3xl font-bold text-blue-600">0</p>
+            <p class="text-sm text-gray-500 mt-2">Registered students</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Total Courses</h3>
+            <p class="text-3xl font-bold text-green-600">0</p>
+            <p class="text-sm text-gray-500 mt-2">Across all children</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Pending Payments</h3>
+            <p class="text-3xl font-bold text-yellow-600">$0</p>
+            <p class="text-sm text-gray-500 mt-2">Outstanding balance</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <a href="/parent/children" class="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition text-center">
+                View My Children
+            </a>
+            <a href="/parent/enroll" class="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-md transition text-center">
+                Enroll in Course
+            </a>
+        </div>
+    </div>
+
+    <!-- Feature Sections -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <!-- Enrollment Management -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                <svg class="h-5 w-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                </svg>
+                Children & Enrollments
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Manage your children's course enrollments and view their academic progress</p>
+            <div class="space-y-2">
+                <a href="/parent/children" class="block text-sm text-indigo-600 hover:text-indigo-800">→ View Children & Enrollments</a>
+                <a href="/parent/enroll" class="block text-sm text-indigo-600 hover:text-indigo-800">→ Enroll Child in Course</a>
+            </div>
+        </div>
+
+        <!-- Queue Management -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                <svg class="h-5 w-5 mr-2 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                </svg>
+                Queue Positions
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Track your children's positions in course waiting lists and enrollment status</p>
+            <div class="space-y-2">
+                <a href="/parent/children" class="block text-sm text-indigo-600 hover:text-indigo-800">→ View Queue Positions</a>
+                <p class="text-xs text-gray-500">When a course is full, your child will be automatically added to the waiting list</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="mt-8 p-6 bg-blue-50 border-l-4 border-blue-400 rounded-lg">
+        <h3 class="text-lg font-semibold text-blue-900 mb-2">How Enrollment Works</h3>
+        <ul class="space-y-2 text-sm text-blue-700">
+            <li>• <strong>Enroll:</strong> Select a child and course to enroll them</li>
+            <li>• <strong>Waiting List:</strong> If a course is full, your child will join the waiting list automatically</li>
+            <li>• <strong>Auto-Promotion:</strong> When a slot opens up, the next student in line is automatically enrolled</li>
+            <li>• <strong>Monitor:</strong> View your child's queue position and estimated wait time</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

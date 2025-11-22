@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Queue Monitoring - Academic Tomorrow{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h2 class="text-3xl font-bold text-gray-900">Course Queue Monitoring</h2>
+        <p class="mt-2 text-sm text-gray-600">Monitor waiting lists and receive suggestions for new classes</p>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="/manager/dashboard" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Suggestions for New Classes -->
+    {% if courses_needing_classes %}
+    <div class="mb-8 p-6 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-lg font-medium text-yellow-800">Suggestion: Consider Opening New Classes</h3>
+                <div class="mt-2 text-sm text-yellow-700">
+                    <p class="mb-2">The following courses have 5 or more students waiting:</p>
+                    <ul class="list-disc list-inside">
+                        {% for course in courses_needing_classes %}
+                        <li>
+                            <strong>{{ course.course_name }}</strong> ({{ course.course_code }}) -
+                            {{ course.waiting_count }} students waiting
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Queue Summary Table -->
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capacity</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrolled</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waiting</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for summary in queue_summaries %}
+                <tr class="hover:bg-gray-50 {% if summary.needs_new_class %}bg-yellow-50{% endif %}">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ summary.course_name }}</div>
+                        <div class="text-sm text-gray-500">{{ summary.course_code }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ summary.capacity }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ summary.enrolled_count }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ summary.available_slots }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if summary.waiting_count > 0 %}
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
+                            {{ summary.waiting_count }}
+                        </span>
+                        {% else %}
+                        <span class="text-sm text-gray-500">0</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        {% if summary.waiting_count > 0 %}
+                        <a href="/manager/queues/course/{{ summary.course_id }}"
+                           class="text-indigo-600 hover:text-indigo-900">View Details</a>
+                        {% else %}
+                        <span class="text-gray-400">No queue</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if not queue_summaries %}
+    <div class="text-center py-12 bg-white rounded-lg shadow">
+        <p class="text-gray-500">No courses found.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

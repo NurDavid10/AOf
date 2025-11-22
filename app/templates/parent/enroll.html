@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Enroll Child - Academic Tomorrow{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h2 class="text-3xl font-bold text-gray-900">Enroll Child in Course</h2>
+        <p class="mt-2 text-sm text-gray-600">Select a child and course to enroll</p>
+    </div>
+
+    <!-- Error Message -->
+    {% if error %}
+    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Enrollment Form -->
+    <form method="POST" action="/parent/enroll" class="bg-white shadow-md rounded-lg p-6">
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Select Child *</label>
+            <select name="student_id" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="">-- Select a Child --</option>
+                {% for child in children %}
+                <option value="{{ child.user_id }}">{{ child.full_name or child.username }} (Grade: {{ child.grade_level or 'N/A' }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Select Course *</label>
+            <select name="course_id" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="">-- Select a Course --</option>
+                {% for course in courses %}
+                <option value="{{ course.id }}">
+                    {{ course.course_name }} ({{ course.course_code }}) -
+                    {% if course.is_full %}
+                        FULL - Will join waiting list
+                    {% else %}
+                        {{ course.available_slots }} slots available
+                    {% endif %}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Info Message -->
+        <div class="mb-6 p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
+            <p class="text-sm text-blue-700">
+                <strong>Note:</strong> If the course is full, your child will be automatically added to the waiting list and enrolled when a slot becomes available.
+            </p>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3">
+            <a href="/parent/children"
+                class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md transition">
+                Cancel
+            </a>
+            <button type="submit"
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition">
+                Enroll
+            </button>
+        </div>
+    </form>
+
+    {% if not children %}
+    <div class="mt-6 p-4 bg-yellow-50 border border-yellow-400 text-yellow-700 rounded-md">
+        You don't have any registered children. Please contact the manager to register your children.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

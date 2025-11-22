@@ -116,7 +116,7 @@ async def create_user(
     # Student fields
     student_enrollment_date: Optional[str] = Form(None),
     grade_level: Optional[str] = Form(None),
-    parent_id: Optional[int] = Form(None),
+    parent_id: Optional[str] = Form(None),  # Changed to str to handle empty strings
     # Parent fields
     phone_number: Optional[str] = Form(None),
     address: Optional[str] = Form(None),
@@ -133,6 +133,15 @@ async def create_user(
 
         # Convert role string to enum
         user_role = UserRole(role)
+
+        # Normalize parent_id: convert empty string to None, then to int if not None
+        parent_id_normalized = None
+        if parent_id and parent_id.strip():
+            try:
+                parent_id_normalized = int(parent_id)
+            except ValueError:
+                request.session["error"] = "Invalid parent ID format."
+                return RedirectResponse(url="/manager/users/create", status_code=302)
 
         # Build profile data based on role
         profile_data = {}
@@ -152,7 +161,7 @@ async def create_user(
             profile_data = {
                 'enrollment_date': datetime.strptime(student_enrollment_date, '%Y-%m-%d').date() if student_enrollment_date else date.today(),
                 'grade_level': grade_level,
-                'parent_id': parent_id
+                'parent_id': parent_id_normalized
             }
         elif user_role == UserRole.PARENT:
             profile_data = {
@@ -254,7 +263,7 @@ async def create_course(
     course_name: str = Form(...),
     course_code: str = Form(...),
     description: Optional[str] = Form(None),
-    teacher_id: Optional[int] = Form(None),
+    teacher_id: Optional[str] = Form(None),  # Changed to str to handle empty strings
     capacity: int = Form(...),
     fee: str = Form(...),
     start_date: Optional[str] = Form(None),
@@ -270,12 +279,21 @@ async def create_course(
         parsed_start_date = datetime.strptime(start_date, '%Y-%m-%d').date() if start_date else None
         parsed_end_date = datetime.strptime(end_date, '%Y-%m-%d').date() if end_date else None
 
+        # Normalize teacher_id: convert empty string to None, then to int if not None
+        teacher_id_normalized = None
+        if teacher_id and teacher_id.strip():
+            try:
+                teacher_id_normalized = int(teacher_id)
+            except ValueError:
+                request.session["error"] = "Invalid teacher ID format."
+                return RedirectResponse(url="/manager/courses/create", status_code=302)
+
         # Create course
         course, error = CourseService.create_course(
             course_name=course_name,
             course_code=course_code,
             description=description,
-            teacher_id=teacher_id if teacher_id else None,
+            teacher_id=teacher_id_normalized,
             capacity=capacity,
             fee=Decimal(fee),
             start_date=parsed_start_date,
@@ -585,7 +603,7 @@ async def create_maintenance_task(
     description: str = Form(""),
     location: str = Form(""),
     priority: str = Form(...),
-    worker_id: Optional[int] = Form(None),
+    worker_id: Optional[str] = Form(None),  # Changed to str to handle empty strings
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -605,9 +623,15 @@ async def create_maintenance_task(
                 location=location if location else None
             )
 
-            # Assign to worker if specified
-            if worker_id:
-                MaintenanceService.assign_task(db, task.id, worker_id, current_user.id)
+            # Normalize worker_id: convert empty string to None, then to int if not None
+            worker_id_normalized = None
+            if worker_id and worker_id.strip():
+                try:
+                    worker_id_normalized = int(worker_id)
+                    MaintenanceService.assign_task(db, task.id, worker_id_normalized, current_user.id)
+                except ValueError:
+                    request.session["error"] = "Invalid worker ID format."
+                    return RedirectResponse(url="/manager/maintenance/create", status_code=302)
 
             request.session["success"] = "Maintenance task created successfully!"
             return RedirectResponse(url="/manager/maintenance", status_code=302)
@@ -624,7 +648,7 @@ async def create_maintenance_task(
 async def assign_maintenance_task(
     request: Request,
     task_id: int,
-    worker_id: int = Form(...),
+    worker_id: Optional[str] = Form(None),  # Changed to str to handle empty strings
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -632,11 +656,17 @@ async def assign_maintenance_task(
     try:
         require_manager(current_user)
 
+        # Normalize worker_id: convert empty string to None, then to int if not None
+        if not worker_id or not worker_id.strip():
+            request.session["error"] = "Please select a worker to assign."
+            return RedirectResponse(url="/manager/maintenance", status_code=302)
+
         try:
-            MaintenanceService.assign_task(db, task_id, worker_id, current_user.id)
+            worker_id_int = int(worker_id)
+            MaintenanceService.assign_task(db, task_id, worker_id_int, current_user.id)
             request.session["success"] = "Task assigned successfully!"
         except ValueError as e:
-            request.session["error"] = str(e)
+            request.session["error"] = str(e) if "Invalid" not in str(e) else "Invalid worker ID format."
 
         return RedirectResponse(url="/manager/maintenance", status_code=302)
 

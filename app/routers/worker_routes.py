@@ -9,6 +9,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from pathlib import Path
+from datetime import datetime
 
 from app.database import get_db
 from app.dependencies.auth import get_current_user
@@ -50,13 +51,23 @@ async def worker_dashboard(
         in_progress_tasks = MaintenanceService.get_worker_tasks(db, current_user.id, TaskStatus.IN_PROGRESS)
         completed_tasks = MaintenanceService.get_worker_tasks(db, current_user.id, TaskStatus.COMPLETED)
 
-        # Get task statistics
-        stats = {
-            'pending': len(pending_tasks),
-            'in_progress': len(in_progress_tasks),
-            'completed': len(completed_tasks),
-            'total': len(pending_tasks) + len(in_progress_tasks) + len(completed_tasks)
+        # Get task statistics (matching template expectations)
+        task_stats = {
+            'total_tasks': len(pending_tasks) + len(in_progress_tasks) + len(completed_tasks),
+            'pending_tasks': len(pending_tasks),
+            'in_progress_tasks': len(in_progress_tasks),
+            'completed_tasks': len(completed_tasks)
         }
+
+        # Combine recent tasks for display
+        all_tasks = pending_tasks + in_progress_tasks + completed_tasks
+        # Sort by created_at descending (most recent first) and take first 5
+        # Handle None created_at by using a datetime far in the past
+        recent_tasks = sorted(
+            all_tasks,
+            key=lambda t: t.created_at if t.created_at else datetime.min,
+            reverse=True
+        )[:5]
 
         # Get success/error messages
         success = request.session.pop("success", None)
@@ -67,9 +78,8 @@ async def worker_dashboard(
             {
                 "request": request,
                 "user": current_user,
-                "stats": stats,
-                "pending_tasks": pending_tasks[:5],  # Show only 5 most recent
-                "in_progress_tasks": in_progress_tasks[:5],
+                "task_stats": task_stats,
+                "recent_tasks": recent_tasks,
                 "success": success,
                 "error": error
             }

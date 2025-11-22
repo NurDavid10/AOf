@@ -98,7 +98,7 @@
                                 {{ task.assigned_worker.user.full_name or task.assigned_worker.user.username }}
                             {% else %}
                                 <form method="POST" action="/manager/maintenance/{{ task.id }}/assign" class="inline">
-                                    <select name="worker_id" class="text-xs border rounded px-2 py-1" onchange="this.form.submit()">
+                                    <select name="worker_id" class="text-xs border rounded px-2 py-1" onchange="if(this.value) this.form.submit()">
                                         <option value="">Assign...</option>
                                         {% for worker in workers %}
                                         <option value="{{ worker.user_id }}">{{ worker.user.full_name or worker.user.username }}</option>

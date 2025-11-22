@@ -16,6 +16,7 @@ from pathlib import Path
 from app.database import get_db
 from app.config import get_settings
 from app.services.auth_service import AuthService
+from app.services.demo_user_service import init_demo_users
 from app.models.user import User
 from app.dependencies.auth import get_current_user
 from app.routers import manager_routes, parent_routes, worker_routes
@@ -48,19 +49,27 @@ app.include_router(parent_routes.router)
 app.include_router(worker_routes.router)
 
 
-# Root route - redirect to login or dashboard
+# Startup event: Initialize demo users
+@app.on_event("startup")
+async def startup_event():
+    """
+    Initialize demo users on application startup.
+    
+    This ensures that demo users (manager1, teacher1, student1, parent1, worker1)
+    exist in the database with password 'password123' whenever the app starts.
+    """
+    init_demo_users()
+
+
+# Root route - redirect to login page
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     """
-    Root route that redirects based on login status.
+    Root route that redirects to the login page.
 
     Returns:
-        RedirectResponse: Redirects to login or dashboard
+        RedirectResponse: Redirects to login page
     """
-    user_id = request.session.get("user_id")
-    if user_id:
-        # Redirect to appropriate dashboard based on role
-        return RedirectResponse(url="/dashboard", status_code=302)
     return RedirectResponse(url="/login", status_code=302)
 
 

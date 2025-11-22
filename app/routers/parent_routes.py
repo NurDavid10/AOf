@@ -19,6 +19,8 @@ from app.services.user_service import UserService
 from app.services.course_service import CourseService
 from app.services.enrollment_service import EnrollmentService
 from app.services.payment_service import PaymentService
+from typing import Optional
+
 
 # Set up templates
 templates_path = Path(__file__).parent.parent / "templates"
@@ -120,8 +122,8 @@ async def enroll_child_form(
 @router.post("/enroll")
 async def enroll_child(
     request: Request,
-    student_id: int = Form(...),
-    course_id: int = Form(...),
+    student_id: Optional[str] = Form(None),  # Changed to str to handle empty strings from dropdown
+    course_id: Optional[str] = Form(None),  # Changed to str to handle empty strings from dropdown
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -129,16 +131,31 @@ async def enroll_child(
     try:
         require_parent(current_user)
 
+        # Validate and convert IDs from strings
+        if not student_id or not student_id.strip():
+            request.session["error"] = "Please select a child."
+            return RedirectResponse(url="/parent/enroll", status_code=302)
+        if not course_id or not course_id.strip():
+            request.session["error"] = "Please select a course."
+            return RedirectResponse(url="/parent/enroll", status_code=302)
+
+        try:
+            student_id_int = int(student_id)
+            course_id_int = int(course_id)
+        except ValueError:
+            request.session["error"] = "Invalid student or course selection."
+            return RedirectResponse(url="/parent/enroll", status_code=302)
+
         # Verify the student is a child of the current parent
         children = UserService.get_parent_children(current_user.id, db)
         child_ids = [child.user_id for child in children]
 
-        if student_id not in child_ids:
+        if student_id_int not in child_ids:
             request.session["error"] = "You can only enroll your own children."
             return RedirectResponse(url="/parent/enroll", status_code=302)
 
         # Attempt enrollment
-        success, message, info = EnrollmentService.enroll_student(student_id, course_id, db)
+        success, message, info = EnrollmentService.enroll_student(student_id_int, course_id_int, db)
 
         if success:
             if info and info['enrolled']:
@@ -324,7 +341,7 @@ async def create_payment_form(
 @router.post("/payments/create")
 async def create_payment(
     request: Request,
-    course_id: int = Form(...),
+    course_id: Optional[str] = Form(None),  # Changed to str to handle empty strings from dropdown
     amount: str = Form(...),
     payment_method: str = Form(...),
     notes: str = Form(""),
@@ -334,6 +351,17 @@ async def create_payment(
     """Submit new payment."""
     try:
         require_parent(current_user)
+
+        # Validate course_id
+        if not course_id or not course_id.strip():
+            request.session["error"] = "Please select a course."
+            return RedirectResponse(url="/parent/payments/create", status_code=302)
+
+        try:
+            course_id_int = int(course_id)
+        except ValueError:
+            request.session["error"] = "Invalid course selection."
+            return RedirectResponse(url="/parent/payments/create", status_code=302)
 
         # Validate and create payment
         try:
@@ -346,7 +374,7 @@ async def create_payment(
                 amount=amount_decimal,
                 payment_type=PaymentType.TUITION,
                 payment_method=method,
-                reference_id=course_id,
+                reference_id=course_id_int,
                 notes=notes if notes else None
             )
 

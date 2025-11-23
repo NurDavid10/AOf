@@ -19,7 +19,7 @@ from app.services.auth_service import AuthService
 from app.services.demo_user_service import init_demo_users
 from app.models.user import User
 from app.dependencies.auth import get_current_user
-from app.routers import manager_routes, parent_routes, worker_routes
+from app.routers import manager_routes, parent_routes, worker_routes, teacher_routes, student_routes
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -47,6 +47,8 @@ templates = Jinja2Templates(directory=str(templates_path))
 app.include_router(manager_routes.router)
 app.include_router(parent_routes.router)
 app.include_router(worker_routes.router)
+app.include_router(teacher_routes.router)
+app.include_router(student_routes.router)
 
 
 # Startup event: Initialize demo users
@@ -179,55 +181,13 @@ async def manager_dashboard(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login", status_code=302)
 
 
-# Teacher dashboard
-@app.get("/teacher/dashboard", response_class=HTMLResponse)
-async def teacher_dashboard(request: Request, db: Session = Depends(get_db)):
-    """Teacher dashboard."""
-    try:
-        user = get_current_user(request, db)
-        if user.role.value != "teacher":
-            raise HTTPException(status_code=403, detail="Access denied")
-
-        return templates.TemplateResponse(
-            "teacher/dashboard.html",
-            {"request": request, "user": user}
-        )
-    except HTTPException:
-        return RedirectResponse(url="/login", status_code=302)
+# Teacher dashboard is now handled in teacher_routes.py
 
 
-# Student dashboard
-@app.get("/student/dashboard", response_class=HTMLResponse)
-async def student_dashboard(request: Request, db: Session = Depends(get_db)):
-    """Student dashboard."""
-    try:
-        user = get_current_user(request, db)
-        if user.role.value != "student":
-            raise HTTPException(status_code=403, detail="Access denied")
-
-        return templates.TemplateResponse(
-            "student/dashboard.html",
-            {"request": request, "user": user}
-        )
-    except HTTPException:
-        return RedirectResponse(url="/login", status_code=302)
+# Student dashboard is now handled in student_routes.py
 
 
-# Parent dashboard
-@app.get("/parent/dashboard", response_class=HTMLResponse)
-async def parent_dashboard(request: Request, db: Session = Depends(get_db)):
-    """Parent dashboard."""
-    try:
-        user = get_current_user(request, db)
-        if user.role.value != "parent":
-            raise HTTPException(status_code=403, detail="Access denied")
-
-        return templates.TemplateResponse(
-            "parent/dashboard.html",
-            {"request": request, "user": user}
-        )
-    except HTTPException:
-        return RedirectResponse(url="/login", status_code=302)
+# Parent dashboard is now handled in parent_routes.py
 
 
 # Worker dashboard is now handled in worker_routes.py

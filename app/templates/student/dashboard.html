@@ -12,19 +12,19 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow-md p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Enrolled Courses</h3>
-            <p class="text-3xl font-bold text-blue-600">0</p>
+            <p class="text-3xl font-bold text-blue-600">{{ course_count }}</p>
             <p class="text-sm text-gray-500 mt-2">Active enrollments</p>
         </div>
 
         <div class="bg-white rounded-lg shadow-md p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Pending Tasks</h3>
-            <p class="text-3xl font-bold text-yellow-600">0</p>
+            <p class="text-3xl font-bold text-yellow-600">{{ pending_tasks_count }}</p>
             <p class="text-sm text-gray-500 mt-2">Due soon</p>
         </div>
 
         <div class="bg-white rounded-lg shadow-md p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Overall Grade</h3>
-            <p class="text-3xl font-bold text-green-600">-</p>
+            <p class="text-3xl font-bold text-green-600">{% if average_grade > 0 %}{{ average_grade }}%{% else %}-{% endif %}</p>
             <p class="text-sm text-gray-500 mt-2">Average score</p>
         </div>
     </div>
@@ -32,18 +32,18 @@
     <div class="bg-white rounded-lg shadow-md p-6">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <button class="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition">
+            <a href="/student/courses" class="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition text-center">
                 My Courses
-            </button>
-            <button class="px-4 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md transition">
+            </a>
+            <a href="/student/tasks" class="px-4 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md transition text-center">
                 My Tasks
-            </button>
-            <button class="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-md transition">
+            </a>
+            <a href="/student/grades" class="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-md transition text-center">
                 View Grades
-            </button>
-            <button class="px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition">
-                Payments
-            </button>
+            </a>
+            <a href="/student/courses" class="px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition text-center">
+                View Schedule
+            </a>
         </div>
     </div>
 </div>

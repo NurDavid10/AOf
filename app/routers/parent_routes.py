@@ -38,6 +38,48 @@ def require_parent(user: User):
 
 
 # ============================================================================
+# DASHBOARD
+# ============================================================================
+
+@router.get("/dashboard", response_class=HTMLResponse)
+async def parent_dashboard(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Parent dashboard with statistics."""
+    try:
+        require_parent(current_user)
+
+        # Get parent's children
+        children = UserService.get_parent_children(current_user.id, db)
+        children_count = len(children)
+
+        # Count total enrolled courses across all children
+        total_courses = 0
+        for child in children:
+            courses_and_queues = EnrollmentService.get_student_courses_and_queues(child.user_id, db)
+            total_courses += len(courses_and_queues['enrolled_courses'])
+
+        # For now, set pending payments to 0
+        # This can be enhanced later with actual payment tracking
+        pending_payments = 0
+
+        return templates.TemplateResponse(
+            "parent/dashboard.html",
+            {
+                "request": request,
+                "user": current_user,
+                "children_count": children_count,
+                "total_courses": total_courses,
+                "pending_payments": pending_payments
+            }
+        )
+    except HTTPException:
+        return RedirectResponse(url="/login", status_code=302)
+
+
+# ============================================================================
 # CHILDREN MANAGEMENT
 # ============================================================================
 

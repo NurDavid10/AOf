@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}My Grades - Academic Tomorrow{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">My Grades</h1>
+        <p class="mt-2 text-gray-600">View your academic performance</p>
+    </div>
+
+    <div class="mb-4">
+        <a href="/student/dashboard" class="text-blue-600 hover:text-blue-800">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+
+    {% if courses_grades %}
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Overall Average</h3>
+            <p class="text-4xl font-bold text-green-600">{{ overall_average }}%</p>
+        </div>
+
+        {% for course_id, course_data in courses_grades.items() %}
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="mb-4">
+                <h3 class="text-xl font-semibold text-gray-900">{{ course_data.course_name }}</h3>
+                <p class="text-sm text-gray-600">{{ course_data.course_code }}</p>
+                <p class="text-lg font-semibold text-blue-600 mt-2">Course Average: {{ course_data.average }}%</p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Task
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Type
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Submitted
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Grade
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Percentage
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Feedback
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for submission in course_data.submissions %}
+                        <tr>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900">{{ submission.task.title }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ submission.task.task_type.value }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {% if submission.submission_date %}
+                                    {{ submission.submission_date.strftime('%Y-%m-%d') }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-semibold text-gray-900">{{ submission.grade }} / {{ submission.task.max_points }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% set percentage = submission.grade_percentage|round(1) %}
+                                {% if percentage >= 90 %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        {{ percentage }}%
+                                    </span>
+                                {% elif percentage >= 80 %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        {{ percentage }}%
+                                    </span>
+                                {% elif percentage >= 70 %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        {{ percentage }}%
+                                    </span>
+                                {% else %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        {{ percentage }}%
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if submission.feedback %}
+                                    <div class="text-sm text-gray-700">{{ submission.feedback }}</div>
+                                {% else %}
+                                    <span class="text-sm text-gray-400">No feedback</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <p class="text-gray-600 text-lg">No grades available yet.</p>
+            <p class="text-gray-500 mt-2">Your grades will appear here once your teachers grade your submissions.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

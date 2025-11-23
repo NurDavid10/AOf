@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Create Task - Academic Tomorrow{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Create New Task</h1>
+        <p class="mt-2 text-gray-600">Create an assignment, exam, or project for your students</p>
+    </div>
+
+    <div class="mb-4">
+        <a href="/teacher/dashboard" class="text-blue-600 hover:text-blue-800">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+
+    {% if error %}
+    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    {% if success %}
+    <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+        {{ success }}
+    </div>
+    {% endif %}
+
+    {% if courses %}
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <form method="post" action="/teacher/tasks/create">
+            <div class="mb-4">
+                <label for="course_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    Select Course <span class="text-red-500">*</span>
+                </label>
+                <select id="course_id" name="course_id" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Choose a course...</option>
+                    {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.course_name }} ({{ course.course_code }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                    Task Title <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="title" name="title" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="e.g., Chapter 5 Assignment">
+            </div>
+
+            <div class="mb-4">
+                <label for="task_type" class="block text-sm font-medium text-gray-700 mb-2">
+                    Task Type <span class="text-red-500">*</span>
+                </label>
+                <select id="task_type" name="task_type" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <option value="assignment">Assignment</option>
+                    <option value="exam">Exam</option>
+                    <option value="project">Project</option>
+                    <option value="homework">Homework</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                    Description <span class="text-red-500">*</span>
+                </label>
+                <textarea id="description" name="description" rows="4" required
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Provide detailed instructions for this task..."></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label for="due_date" class="block text-sm font-medium text-gray-700 mb-2">
+                    Due Date & Time <span class="text-red-500">*</span>
+                </label>
+                <input type="datetime-local" id="due_date" name="due_date" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="mb-6">
+                <label for="max_points" class="block text-sm font-medium text-gray-700 mb-2">
+                    Maximum Points <span class="text-red-500">*</span>
+                </label>
+                <input type="number" id="max_points" name="max_points" min="0" step="0.01" value="100.00" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="flex gap-4">
+                <button type="submit"
+                        class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition">
+                    Create Task
+                </button>
+                <a href="/teacher/dashboard"
+                   class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md transition inline-block">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+    {% else %}
+    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+        <p class="text-gray-600 text-lg">You are not assigned to any courses yet.</p>
+        <p class="text-gray-500 mt-2">You need to be assigned to at least one course to create tasks.</p>
+        <a href="/teacher/dashboard" class="mt-4 inline-block px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition">
+            Back to Dashboard
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

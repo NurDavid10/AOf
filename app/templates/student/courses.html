@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}My Courses - Academic Tomorrow{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">My Courses</h1>
+        <p class="mt-2 text-gray-600">Courses you are enrolled in</p>
+    </div>
+
+    <div class="mb-4">
+        <a href="/student/dashboard" class="text-blue-600 hover:text-blue-800">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+
+    {% if enrollments %}
+        <div class="grid grid-cols-1 gap-6">
+            {% for enrollment in enrollments %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold text-gray-900">{{ enrollment.course.course_name }}</h3>
+                        <p class="text-sm text-gray-600 mt-1">Course Code: {{ enrollment.course.course_code }}</p>
+
+                        {% if enrollment.course.description %}
+                        <p class="text-gray-700 mt-3">{{ enrollment.course.description }}</p>
+                        {% endif %}
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                            <div>
+                                <p class="text-sm text-gray-500">Teacher</p>
+                                <p class="text-lg font-semibold">{{ enrollment.course.teacher_name }}</p>
+                            </div>
+
+                            {% if enrollment.course.start_date %}
+                            <div>
+                                <p class="text-sm text-gray-500">Start Date</p>
+                                <p class="text-lg font-semibold">{{ enrollment.course.start_date.strftime('%Y-%m-%d') }}</p>
+                            </div>
+                            {% endif %}
+
+                            {% if enrollment.course.end_date %}
+                            <div>
+                                <p class="text-sm text-gray-500">End Date</p>
+                                <p class="text-lg font-semibold">{{ enrollment.course.end_date.strftime('%Y-%m-%d') }}</p>
+                            </div>
+                            {% endif %}
+
+                            <div>
+                                <p class="text-sm text-gray-500">Enrollment Status</p>
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    {{ enrollment.status.value }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <p class="text-sm text-gray-500">Enrolled on</p>
+                            <p class="text-sm font-medium">
+                                {% if enrollment.enrollment_date %}
+                                    {{ enrollment.enrollment_date.strftime('%Y-%m-%d %H:%M') }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <p class="text-gray-600 text-lg">You are not enrolled in any courses yet.</p>
+            <p class="text-gray-500 mt-2">Please contact your parent or the manager to enroll in courses.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
